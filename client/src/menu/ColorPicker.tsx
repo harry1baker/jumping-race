@@ -7,7 +7,7 @@ function ColorPicker({data, colorIsPicked}: {data:color[] , colorIsPicked: (c:co
 			{ data.map((e, i) => { 
 				return (
 					<React.Fragment key={i}>
-						<input type="radio" name="colorsToPickButtons" value={e} className="ColorPickerButtons" onChange={e => {colorIsPicked(e.target.value as color); console.log("testing");}}/>
+						<input type="radio" name="colorsToPickButtons" value={e} className="ColorPickerButtons" onChange={e => colorIsPicked(e.target.value as color)}/>
 						<label htmlFor={e}><span className="ColorPickerColors" style={{backgroundColor:e}}>{e}</span></label>
 					</React.Fragment>
 				)

@@ -4,6 +4,8 @@ import ColorPicker from "./ColorPicker";
 type color = "red" | "blue" | "green" | "purple" | "yellow";
 type states = "default" | "pickingColor" | "pickedColor" | "waiting";
 
+let chosenColor: color | null = null;
+
 function decider(state: states, colors:color[], colorIsPicked: (c:color| null) => void, setState: (s:states) => void, readyForGame:() => void){
 	if (state === "default"){
 		return <input className="joinButton" type="button" value="Join" onClick={() => setState("pickingColor")}/>
@@ -19,9 +21,12 @@ function decider(state: states, colors:color[], colorIsPicked: (c:color| null) =
 	}
 }
 
-function HostListElem({data, socketEmit}: {data:[string, number, color[]], socketEmit:(event:string, data:string) => void}){
-		const [state, setState] = useState<states>("default");
-		let chosenColor: color | null = null;
+function HostListElem({data, socketEmit, setChosen}: {
+data:[string, number, color[]],
+ socketEmit?:(event:string, data:string) => void,
+ setChosen?:(c:[string, number, color[]]) => void
+}){
+		const [state, setState] = useState<states>(socketEmit? "default" : "waiting");
 		function colorIsPicked(c:color | null){
 			chosenColor = c
 			if (c === null){
@@ -30,15 +35,15 @@ function HostListElem({data, socketEmit}: {data:[string, number, color[]], socke
 				setState("pickedColor");
 			}
 		}
-		function readyForGame(){
-			//socketEmit("readyForGame", chosenColor!);
-			setState("waiting");
-		}
 		return (
 			<div className="HostListElem">
 				<p className="Hostname" >Hostname: {data[0]}</p>
 				<p className="Members" >Members: {data[1]}/5</p>
-				{decider(state, data[2], colorIsPicked, setState, readyForGame)}
+				{socketEmit && setChosen? decider(state, data[2], colorIsPicked, setState, () => {
+					//socketEmit("readyForGame", chosenColor);
+					setState("waiting");
+					setChosen(data);
+				}): <p className="waitingMessage">waiting...</p>}
 			</div>
 		)
 }
